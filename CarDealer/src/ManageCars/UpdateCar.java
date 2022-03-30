@@ -1,30 +1,28 @@
-package NewCar;
+package ManageCars;
 
 import java.sql.SQLException;
-
-import javax.swing.JOptionPane;
 
 import Connection.DbConnection;
 import ErrorHandling.IntegrityConstraintValidation;
 import Tables.Car;
-import Tables.User;
 
-public class InsertCar {
+public class UpdateCar {
 
    static DbConnection conn = new DbConnection();
 
-   public static void carInsert(Car car) {
+   public static void carUpdate(Car car) {
       conn.setConn();
       conn.setPstat(null);
-      String sql = "INSERT INTO garage.Car (Make,Model,Reg,VIN,Transmission,Colour) VALUES (?,?,?,?,?,?)";
+      String sql = "Update garage.Car Set Reg= ?,Make= ?,Model=?,VIN=?,Transmission=?,Colour=? Where CarId = ? ";
       try {
          conn.setPstat(conn.getConn().prepareStatement(sql));
-         conn.getPstat().setString(1, car.getMake());
-         conn.getPstat().setString(2, car.getModel());
-         conn.getPstat().setString(3, car.getReg());
+         conn.getPstat().setString(1, car.getReg());
+         conn.getPstat().setString(2, car.getMake());
+         conn.getPstat().setString(3, car.getModel());
          conn.getPstat().setString(4, car.getVin());
          conn.getPstat().setString(5, car.getTransmission());
          conn.getPstat().setString(6, car.getColour());
+         conn.getPstat().setInt(7, car.getCarId());
          conn.getPstat().executeUpdate();
 
       } catch (SQLException e) {

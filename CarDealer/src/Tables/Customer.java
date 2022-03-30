@@ -5,10 +5,10 @@ public class Customer {
 	private int customerID;
 	private String fname;
 	private String lname;
-	private int phone;
+	private String phone;
 	private String email;
 	private Address address;
-	
+	private double budget;
 	
 	
 	//Constructor
@@ -29,10 +29,10 @@ public class Customer {
 	public void setLname(String lname) {
 		this.lname = lname;
 	}
-	public int getPhone() {
+	public String getPhone() {
 		return phone;
 	}
-	public void setPhone(int phone) {
+	public void setPhone(String phone) {
 		this.phone = phone;
 	}
 	public String getEmail() {
@@ -54,6 +54,20 @@ public class Customer {
 
 	public void setCustomerID(int customerID) {
 		this.customerID = customerID;
+	}
+
+	@Override
+	public String toString() {
+		return "Customer [customerID=" + customerID + ", fname=" + fname + ", lname=" + lname + ", phone=" + phone
+				+ ", email=" + email + ", address=" + address + "]";
+	}
+
+	public double getBudget() {
+		return budget;
+	}
+
+	public void setBudget(double budget) {
+		this.budget = budget;
 	}
 
 	

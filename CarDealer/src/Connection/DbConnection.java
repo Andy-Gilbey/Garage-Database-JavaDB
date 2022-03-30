@@ -69,7 +69,7 @@ public class DbConnection{
 		     conn = DriverManager.getConnection(this.getDATABASE_URL(), this.getUsername(), this.getPassword());
 		 
 		    if (conn != null) {
-		        System.out.println("Connected");
+		        //System.out.println("Connected");
 		    }
 		} catch (SQLException ex) {
 		    ex.printStackTrace();
@@ -80,6 +80,13 @@ public class DbConnection{
 	
 	public PreparedStatement getPstat() {
 		return pstat;
+	}
+	
+	
+	public void closeAll() throws SQLException {
+		conn.close();
+		pstat.close();
+		rs.close();
 	}
 
 

@@ -549,7 +549,8 @@ public static User pullUser() throws Blanks, SQLException {
 	   
    } //END PULL USER METHOD
 
-   protected void aupSaveBtnActionPerformed(ActionEvent e) throws  SQLException, Blanks {
+   @SuppressWarnings("static-access")
+protected void aupSaveBtnActionPerformed(ActionEvent e) throws  SQLException, Blanks {
       User user = new User();
       user = pullUser();
       System.out.println(user.toString());

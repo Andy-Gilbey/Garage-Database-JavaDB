@@ -6,6 +6,7 @@ public class Address {
 	private String addressLn2;
 	private String town;
 	private String county;
+	private String eircode;
 	
 	public Address() {
 		super();
@@ -42,6 +43,14 @@ public class Address {
 
 	public void setCounty(String county) {
 		this.county = county;
+	}
+
+	public String getEircode() {
+		return eircode;
+	}
+
+	public void setEircode(String eircode) {
+		this.eircode = eircode;
 	}
 	
 	

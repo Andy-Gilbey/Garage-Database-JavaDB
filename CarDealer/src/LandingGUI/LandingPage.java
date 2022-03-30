@@ -6,6 +6,8 @@ import java.awt.Font;
 import java.awt.HeadlessException;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
 import java.sql.SQLException;
 
 import javax.swing.BorderFactory;
@@ -17,8 +19,11 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.KeyStroke;
 import javax.swing.WindowConstants;
 
+import ManageCars.ManageCarGui;
+import ManageCustomer.ManageCustomerGui;
 import ManageStock.ManageStockGui;
 import NewCar.AddNewCarGui;
 
@@ -37,11 +42,12 @@ public class LandingPage extends JFrame{
     private JMenuItem menuLogOut;
     private JLabel liabilityLabel;
     private JLabel loggedInAsLabel;
+    private JMenuItem menuManageCars;
     private JLabel logoLabel;
     private JButton manageCustomersBtn;
     private JButton manageInvoicesBtn;
     private JButton manageStockBtn;
-    private JMenuItem menuAddNewStock;
+    private JMenuItem menuAddNewCar;
     private JMenuBar menuBar;
     private JMenuItem menuManageCustomers;
     private JMenuItem menuManageStock;
@@ -78,6 +84,7 @@ public class LandingPage extends JFrame{
 	        manageInvoicesBtn = new JButton();
 	        shortcut2 = new JLabel();
 	        shortcut3 = new JLabel();
+	        menuManageCars = new JMenuItem();
 	        addNewStockBtn = new JButton();
 	        manageCustomersBtn = new JButton();
 	        shortcut4 = new JLabel();
@@ -86,7 +93,7 @@ public class LandingPage extends JFrame{
 	        settingsBtn = new JButton();
 	        menuBar = new JMenuBar();
 	        fileMenu = new JMenu();
-	        menuAddNewStock = new JMenuItem();
+	        menuAddNewCar = new JMenuItem();
 	        menuManageStock = new JMenuItem();
 	        menuManageCustomers = new JMenuItem();
 	        menuManageInvoices = new JMenuItem();
@@ -177,8 +184,8 @@ public class LandingPage extends JFrame{
 	        getStartedPanel.add(shortcut3);
 	        shortcut3.setBounds(460, 80, 110, 20);
 
-	        addNewStockBtn.setText("Add New Stock");
-	        menuAddNewStock.addActionListener(new ActionListener() {
+	        addNewStockBtn.setText("Add New Car");
+	        menuAddNewCar.addActionListener(new ActionListener() {
 	            public void actionPerformed(ActionEvent e) {
 	                try {
 						menuAddNewStockActionPerformed(e);
@@ -193,6 +200,12 @@ public class LandingPage extends JFrame{
 	        addNewStockBtn.setBounds(20, 80, 150, 21);
 
 	        manageCustomersBtn.setText("Manage Customers");
+	        menuManageCustomers.addActionListener(new ActionListener() {
+	            public void actionPerformed(ActionEvent e) {
+	                menuManageCustomersActionPerformed(e);
+	            }
+	        });
+	        
 	        getStartedPanel.add(manageCustomersBtn);
 	        manageCustomersBtn.setBounds(300, 80, 150, 21);
 
@@ -223,10 +236,12 @@ public class LandingPage extends JFrame{
 
 	        fileMenu.setText("File");
 
-	        menuAddNewStock.setText("Add New Stock");
-	        fileMenu.add(menuAddNewStock);
+	        menuAddNewCar.setText("Add New Car");
+	        menuAddNewCar.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N, InputEvent.ALT_DOWN_MASK));
+	        fileMenu.add(menuAddNewCar);
 
 	        menuManageStock.setText("Manage Stock");
+	        menuManageStock.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C, InputEvent.ALT_DOWN_MASK));
 	        menuManageStock.addActionListener(new ActionListener() {
 	            public void actionPerformed(ActionEvent e) {
 	                try {
@@ -238,12 +253,31 @@ public class LandingPage extends JFrame{
 					}
 	            }
 	        });
+	        
+	        menuManageCars.setText("Manage Cars");
+	        menuManageCars.addActionListener(new ActionListener() {
+	            public void actionPerformed(ActionEvent e) {
+	                try {
+						menuManageCarsActionPerformed(e);
+					} catch (HeadlessException e1) {
+						e1.printStackTrace();
+					} catch (SQLException e1) {
+						e1.printStackTrace();
+					}
+	            }
+	        });
+	        fileMenu.add(menuManageCars);
+	        
 	        fileMenu.add(menuManageStock);
-
+	        
+	   
+	        
 	        menuManageCustomers.setText("Manage Customers");
+	        menuManageCustomers.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C, InputEvent.SHIFT_DOWN_MASK));
 	        fileMenu.add(menuManageCustomers);
 
 	        menuManageInvoices.setText("Manage Invoices");
+	        menuManageInvoices.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_I, InputEvent.ALT_DOWN_MASK));
 	        fileMenu.add(menuManageInvoices);
 
 	        menuBar.add(fileMenu);
@@ -269,7 +303,17 @@ public class LandingPage extends JFrame{
 	    }          
 	
 	
-    protected void menuManageStockActionPerformed(ActionEvent e) throws HeadlessException, SQLException {
+    protected void menuManageCarsActionPerformed(ActionEvent e) throws HeadlessException, SQLException {
+		ManageCarGui mgecar = new ManageCarGui();
+	}
+
+	protected void menuManageCustomersActionPerformed(ActionEvent e) {
+		ManageCustomerGui manageCust = new ManageCustomerGui();
+		manageCust.setVisible(true);
+		
+	}
+
+	protected void menuManageStockActionPerformed(ActionEvent e) throws HeadlessException, SQLException {
 		ManageStockGui manageStock = new ManageStockGui();
 		manageStock.setVisible(true);
 	}
