@@ -4,6 +4,10 @@ import Tables.User;
 import java.sql.SQLException;
 import Connection.DbConnection;
 
+/**
+ * @author Andrew Gilbey/C00263656
+ *
+ */
 public class InsertUser {
 
    static DbConnection conn = new DbConnection();

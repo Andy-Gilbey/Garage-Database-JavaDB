@@ -42,6 +42,10 @@ import Tables.Address;
 import Tables.Customer;
 import Tables.Stock;
 
+/**
+ * @author Andrew Gilbey/c00263656
+ *
+ */
 public class ManageCustomerGui extends JFrame {
 
    private JTextField addressLn1Field;
@@ -85,6 +89,7 @@ public class ManageCustomerGui extends JFrame {
    private JTextField townField;
    private JLabel townLabel;
    private JButton clearBtn;
+   private JLabel managecustomerLogo;
 
    static DbConnection conn = new DbConnection();
 
@@ -143,6 +148,7 @@ public class ManageCustomerGui extends JFrame {
       searchLabel = new JLabel();
       searchField = new JTextField();
       searchBtn = new JButton();
+      managecustomerLogo = new JLabel();
 
       //Fonts
       Font interM36B = new Font("Inter Medium", 1, 36);
@@ -168,6 +174,10 @@ public class ManageCustomerGui extends JFrame {
       headerPanel.setBorder(BorderFactory.createLineBorder(black));
       headerPanel.setForeground((white));
       headerPanel.setLayout(null);
+
+      managecustomerLogo.setIcon(new ImageIcon(getClass().getResource("/Images/managecustomers.png"))); // NOI18N
+      headerPanel.add(managecustomerLogo);
+      managecustomerLogo.setBounds(20, 0, 110, 100);
 
       manageStockLabel.setFont(interM36B);
       manageStockLabel.setText("Manage Customers");
@@ -511,7 +521,7 @@ public class ManageCustomerGui extends JFrame {
       enableRmvChkBox.setBounds(315, 10, 120, 19);
 
       rmCustCombo.setModel(customerList);
-      
+
       quickRmPanel.add(rmCustCombo);
       rmCustCombo.setBounds(190, 50, 140, 21);
       populateCustomer();
@@ -579,12 +589,12 @@ public class ManageCustomerGui extends JFrame {
    }
 
    protected void enableRmvChkBoxItemStateChanged(ItemEvent e) {
-	   
-	   if (rmvBtn.isEnabled() == false) {
-	         rmvBtn.setEnabled(true);
-	      } else {
-	         rmvBtn.setEnabled(false);
-	      }
+
+      if (rmvBtn.isEnabled() == false) {
+         rmvBtn.setEnabled(true);
+      } else {
+         rmvBtn.setEnabled(false);
+      }
    }
 
    protected void rmvBtnActionPerformed(ActionEvent e) throws DataValidationFail, SQLException, IntegrityConstraintValidation {
@@ -656,11 +666,11 @@ public class ManageCustomerGui extends JFrame {
             String customerName = (String.valueOf(customerID));
             customerName = customerName + " " + conn.getRs().getString("FirstName"); //Grab the first name from the table
             customerName = customerName + " " + conn.getRs().getString("Lastname"); //Grab the last name from the table
-            
+
             customerList.addElement(customerName); //add the result set data into the combo box
-            
+
          }
-         customerList.removeElementAt(0);//Remove default customer from remove list
+         customerList.removeElementAt(0); //Remove default customer from remove list
       } catch (Exception err) {
          System.out.println(err);
       }
@@ -806,11 +816,11 @@ public class ManageCustomerGui extends JFrame {
             customer.setAddress(address);
             customer.setBudget(budget);
             return customer;
-            
+
          } else {
 
-            JOptionPane.showMessageDialog(rootPane, "No Customer selected", "Error!", JOptionPane.ERROR_MESSAGE); 
-         } 
+            JOptionPane.showMessageDialog(rootPane, "No Customer selected", "Error!", JOptionPane.ERROR_MESSAGE);
+         }
       }
       return null;
    }

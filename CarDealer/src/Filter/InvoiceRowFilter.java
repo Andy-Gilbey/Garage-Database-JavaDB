@@ -6,11 +6,11 @@ import javax.swing.RowFilter;
  * @author Andrew Gilbey/C00263656
  *
  */
-public class CustomerRowFilter extends RowFilter {
+public class InvoiceRowFilter extends RowFilter {
 
 private String searched;
 	
-	public CustomerRowFilter(String searched) {
+	public InvoiceRowFilter(String searched) {
 
 		this.searched = searched;
 	}
@@ -25,3 +25,6 @@ private String searched;
 		
 	}
 }
+
+
+

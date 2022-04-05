@@ -2,17 +2,22 @@ package NewCar;
 
 import java.sql.SQLException;
 
-import javax.swing.JOptionPane;
-
 import Connection.DbConnection;
 import ErrorHandling.IntegrityConstraintValidation;
 import Tables.Car;
-import Tables.User;
 
+/**
+ * @author Andrew Gilbey/C00263656
+ *
+ */
 public class InsertCar {
 
    static DbConnection conn = new DbConnection();
 
+   /**
+    * Method that extracts data from the car object and uses an sql query (in prepared statement) to insert a record into the database
+    * @param car - the car object which data will be used to create a record in the car table
+    */
    public static void carInsert(Car car) {
       conn.setConn();
       conn.setPstat(null);
@@ -32,13 +37,21 @@ public class InsertCar {
       }
    }
 
+   /**
+    * Method which checks a car object to ensure it can be sent to the database without error.
+    * @param car - The car object which is being checked for validation
+    * @return flag - 1 = error 0 - valid
+    * @throws SQLException
+    * @throws IntegrityConstraintValidation
+    */
    public static int validation(Car car) throws SQLException, IntegrityConstraintValidation {
       conn.setConn();
       conn.setPstat(null);
       int flag = 0;
-      String sql = "Select Reg, Vin From Car where Reg= ?";
+      String sql = "Select Reg, Vin From Car where Reg= ? or Vin=?";
       conn.setPstat(conn.getConn().prepareStatement(sql));
       conn.getPstat().setString(1, car.getReg());
+      conn.getPstat().setString(2, car.getVin());
       conn.setRs(conn.getPstat().executeQuery());
       try {
          if (conn.getRs().next()) {

@@ -6,8 +6,9 @@ import java.awt.HeadlessException;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
-import javax.swing.AbstractButton;
 import javax.swing.BorderFactory;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.ImageIcon;
@@ -21,32 +22,46 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.WindowConstants;
-import javax.swing.event.RowSorterEvent;
-import javax.swing.event.RowSorterListener;
-import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableModel;
-import javax.swing.table.TableRowSorter;
 
+import javax.swing.table.DefaultTableModel;
+
+import javax.swing.table.TableRowSorter;
 
 import Connection.DbConnection;
 import ErrorHandling.DataValidationFail;
 import Filter.RegRowFilter;
 import Filter.StockNoRowFilter;
+import ManageInvoice.GenerateInvoice;
+import ManageInvoice.GenerateInvoicePane;
+import Tables.Address;
 import Tables.Car;
 import Tables.Customer;
+import Tables.Invoice;
 import Tables.Staff;
 import Tables.Stock;
 
+/**
+ * @author Andrew Gilbey/C00263656
+ */
 public class ManageStockGui extends JFrame {
+
+   private static final long serialVersionUID = 17922813122782036L;
 
    //Database Connection 
    static DbConnection conn = new DbConnection();
 
    //Table Models
+   @SuppressWarnings("rawtypes")
    private static DefaultComboBoxModel nonAssignedCars = new DefaultComboBoxModel(); //List that is full of cars not in the stock table presently
+   @SuppressWarnings("rawtypes")
    private static DefaultComboBoxModel currentStock = new DefaultComboBoxModel(); //List that stores the current Stock items stored in DB
+   @SuppressWarnings("rawtypes")
    private static DefaultComboBoxModel staffList = new DefaultComboBoxModel();
+   @SuppressWarnings("rawtypes")
    private static DefaultComboBoxModel customerList = new DefaultComboBoxModel();
+   @SuppressWarnings("rawtypes")
+   private static DefaultComboBoxModel invoiceableStock = new DefaultComboBoxModel();
+
    //Variable Declaration
    private JPanel addCarToStockPanel;
    private JLabel manageStockImage;
@@ -89,15 +104,22 @@ public class ManageStockGui extends JFrame {
    private JLabel instructionLabel;
    private JButton refreshTableBtn;
    private JButton searchBtn;
-   
-   
 
+   /**
+    * Constructor that calls the initialise method to build the GUI to the screen
+    * @throws HeadlessException
+    * @throws SQLException
+    */
    public ManageStockGui() throws HeadlessException, SQLException {
-      initalise();
+      initialise();
       updateStockTable(stockListTable);
    }
 
-   public void initalise() throws SQLException {
+   /**
+    * The initialise method contains the code in order to build the ManageStock GUI and output it to the screen 
+    * @throws SQLException
+    */
+   public void initialise() throws SQLException {
 
       headerPanel = new JPanel();
       manageStockImage = new JLabel();
@@ -107,7 +129,7 @@ public class ManageStockGui extends JFrame {
       listScrollPane = new JScrollPane();
       stockListTable = new JTable();
       addCarToStockPanel = new JPanel();
-      carToAddCombo = new JComboBox < String > (nonAssignedCars);
+      carToAddCombo = new JComboBox < String > (getNonAssignedCars());
       carToAddLabel = new JLabel();
       euroSym = new JLabel();
       priceLabel = new JLabel();
@@ -127,11 +149,11 @@ public class ManageStockGui extends JFrame {
       popOutModify = new JButton();
       statusCombo = new JComboBox < > ();
       sellerLabel = new JLabel();
-      sellerCombo = new JComboBox < > (staffList);
+      sellerCombo = new JComboBox < > (getStaffList());
       stockItemCombo = new JComboBox < String > (currentStock);
       generateInvoicePanel = new JPanel();
       stockItemLabel2 = new JLabel();
-      invGenStockItemCombo = new JComboBox < > ();
+      invGenStockItemCombo = new JComboBox < > (invoiceableStock);
       generateInvoiceBtn = new JButton();
       modPriceLabel = new JLabel();
       modEuroSymb = new JLabel();
@@ -139,8 +161,6 @@ public class ManageStockGui extends JFrame {
       instructionLabel = new JLabel();
       refreshTableBtn = new JButton();
       searchBtn = new JButton();
- 
-      
 
       setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
       setTitle("Manage Stock");
@@ -152,6 +172,7 @@ public class ManageStockGui extends JFrame {
       //Colours
       Color purple = new Color(204, 204, 255);
       Color black = new Color(0, 0, 0);
+      Color white = new Color(255, 255, 255);
 
       //Dimensions
       Dimension frame = new Dimension(1000, 740);
@@ -162,7 +183,7 @@ public class ManageStockGui extends JFrame {
 
       headerPanel.setBackground(purple);
       headerPanel.setBorder(BorderFactory.createLineBorder(black));
-      headerPanel.setForeground(new Color(255, 255, 255));
+      headerPanel.setForeground(white);
       headerPanel.setLayout(null);
 
       titleLabel.setFont(interM36);
@@ -221,16 +242,14 @@ public class ManageStockGui extends JFrame {
             return canEdit[columnIndex];
          }
       });
-      
-     TableRowSorter tableSorter = new TableRowSorter(stockListTable.getModel());
-     stockListTable.setRowSorter(tableSorter);
-     
-  
-     manageStockImage.setIcon(new ImageIcon(getClass().getResource("/Images/manageStock.png")));
-     headerPanel.add(manageStockImage);
-     manageStockImage.setBounds(10, 0, 240, 100);
-    
-      
+
+      TableRowSorter tableSorter = new TableRowSorter(stockListTable.getModel());
+      stockListTable.setRowSorter(tableSorter);
+
+      manageStockImage.setIcon(new ImageIcon(getClass().getResource("/Images/manageStock.png")));
+      headerPanel.add(manageStockImage);
+      manageStockImage.setBounds(10, 0, 240, 100);
+
       listScrollPane.setViewportView(stockListTable);
 
       currentStockPanel.add(listScrollPane);
@@ -243,7 +262,7 @@ public class ManageStockGui extends JFrame {
       addCarToStockPanel.setLayout(null);
 
       addCarToStockPanel.add(carToAddCombo);
-      carToAddCombo.setModel(nonAssignedCars);
+      carToAddCombo.setModel(getNonAssignedCars());
       carToAddCombo.setBounds(120, 40, 260, 21);
 
       carToAddLabel.setFont(interM14);
@@ -307,25 +326,22 @@ public class ManageStockGui extends JFrame {
       searchBtn.setText("Search");
       searchBtn.addActionListener(new ActionListener() {
          public void actionPerformed(ActionEvent e) {
-        	 if(searchByRegField.getText().isEmpty() == false && searchByStockNoField.getText().isEmpty() == false )
-        	 {
-        		 JOptionPane.showMessageDialog(bodyPanel, "You can only search by one category at a time.", "Error", JOptionPane.WARNING_MESSAGE);
-        	 }
-        	 else {
-        		 if(searchByRegField.getText().isEmpty()) {
-            		 
-            		 String searched = searchByStockNoField.getText();
-            		 tableSorter.setRowFilter(new StockNoRowFilter(searched));
-            	 }
-            	 else {
-                	 String searched = searchByRegField.getText();
-                     tableSorter.setRowFilter(new RegRowFilter(searched));
-            	 }
+            if (searchByRegField.getText().isEmpty() == false && searchByStockNoField.getText().isEmpty() == false) {
+               JOptionPane.showMessageDialog(bodyPanel, "You can only search by one category at a time.", "Error", JOptionPane.WARNING_MESSAGE);
+            } else {
+               if (searchByRegField.getText().isEmpty()) {
 
-        	 }
+                  String searched = searchByStockNoField.getText();
+                  tableSorter.setRowFilter(new StockNoRowFilter(searched));
+               } else {
+                  String searched = searchByRegField.getText();
+                  tableSorter.setRowFilter(new RegRowFilter(searched));
+               }
+
+            }
          }
       });
-      
+
       searchPanel.add(searchBtn);
       searchBtn.setBounds(330, 40, 90, 21);
 
@@ -371,8 +387,7 @@ public class ManageStockGui extends JFrame {
       statusCombo.setModel(new DefaultComboBoxModel < > (new String[] {
          "In Stock",
          "On Hold",
-         "Sold-Not Invoiced",
-         "Sold"
+         "Sold-Not Invoiced"
       }));
       statusCombo.setBounds(130, 150, 140, 21);
 
@@ -399,19 +414,19 @@ public class ManageStockGui extends JFrame {
       generateInvoicePanel.add(stockItemLabel2);
       stockItemLabel2.setBounds(40, 30, 80, 20);
 
-      invGenStockItemCombo.setModel(new DefaultComboBoxModel < > (new String[] {
-         "Item 1",
-         "Item 2",
-         "Item 3",
-         "Item 4"
-      }));
+      invGenStockItemCombo.setModel(invoiceableStock);
+      populateInvoiceable();
       generateInvoicePanel.add(invGenStockItemCombo);
       invGenStockItemCombo.setBounds(120, 30, 140, 21);
 
       generateInvoiceBtn.setText("Generate Invoice");
       generateInvoiceBtn.addActionListener(new ActionListener() {
          public void actionPerformed(ActionEvent e) {
-            generateInvoiceBtnActionPerformed(e);
+            try {
+               generateInvoiceBtnActionPerformed(e);
+            } catch (SQLException e1) {
+               e1.printStackTrace();
+            }
          }
       });
       generateInvoicePanel.add(generateInvoiceBtn);
@@ -462,43 +477,49 @@ public class ManageStockGui extends JFrame {
       });
       currentStockPanel.add(refreshTableBtn);
       refreshTableBtn.setBounds(10, 540, 20, 21);
-      
+
       pack();
-      setLocationRelativeTo(null);//Spawn the GUI centre of the screen
+      setLocationRelativeTo(null); //Spawn the GUI centre of the screen
    }
 
+   //Action Listeners
 
-
-protected void searchBtnActionPerformed(ActionEvent e) {
-	   
-
-   }
+   /**
+    * Refresh button action listener. Calls the updateStockTable method to refresh any changes made to the table.
+    * Also calls the populateNonStock and populateInvoiceable methods to reflect any changes that may have occurred in modifying the database
+    * and reflect changes in the combo-boxes
+    * @param ActionEvent e
+    * @throws SQLException
+    */
 
    protected void refreshTableBtnActionPerformed(ActionEvent e) throws SQLException {
       updateStockTable(stockListTable);
       populateNonStock();
+      populateInvoiceable();
 
    }
 
-   //Action Listeners
+   /**
+    * Action listener for the addToStockList button. 
+    * Adds a stock item to the stock table of the database when called based on a selection from a combo box
+    * @param ActionEvent e
+    * @throws SQLException
+    */
    protected void addToStockListBtnActionPerformed(ActionEvent e) throws SQLException {
 
-      Stock stock = new Stock();
-      InsertToStock insert = new InsertToStock();
-      stock = buildStockForAdd();
-      if(stock !=null) {
-          insert.stockInsert(stock, stock.getCar().getCarId());
-          JOptionPane.showMessageDialog(null, "Success! " + stock.getCar().getReg() + " added to stock", "Success", JOptionPane.INFORMATION_MESSAGE);
-          updateStockTable(stockListTable);
-          populateNonStock();
-          populateCurrentStock();
-          priceField.setText(" ");
+      Stock stock = new Stock(); //new stock object
+      InsertToStock insert = new InsertToStock(); //new InsertTOStock object
+      stock = buildStockForAdd(); //Build stock to add based on fields in the GUI
+      if (stock != null) { //If the object is not returned as null
+         insert.stockInsert(stock, stock.getCar().getCarId()); //Insert the car object to the database 
+         JOptionPane.showMessageDialog(null, "Success! " + stock.getCar().getReg() + " added to stock", "Success", JOptionPane.INFORMATION_MESSAGE);
+         updateStockTable(stockListTable); //refresh the table
+         populateNonStock(); //refresh the combo box
+         populateCurrentStock(); //refresh the combo box
+         priceField.setText("0.0"); //reset the price field to zero
+      } else {
+         JOptionPane.showMessageDialog(null, "Data Validation Error occured.", "Fail", JOptionPane.ERROR_MESSAGE); //Error message if the object is returned null to avoid exception and a crash
       }
-      else
-      {
-    	  JOptionPane.showMessageDialog(null, "Data Validation Error occured.", "Fail", JOptionPane.ERROR_MESSAGE);
-      }
-
 
    }
 
@@ -506,21 +527,38 @@ protected void searchBtnActionPerformed(ActionEvent e) {
       Stock stock = new Stock();
       UpdateStock update = new UpdateStock();
       stock = buildStockForUpdate();
-      if(stock != null)
-      {
-          update.stockUpdate(stock);
-          JOptionPane.showMessageDialog(null, "Success!" + stock.getCar().getReg() + " stock modified", "Success", JOptionPane.INFORMATION_MESSAGE);
-          updateStockTable(stockListTable);
-          populateCurrentStock();
-      }
-      else
-      {
-    	  JOptionPane.showMessageDialog(null, "Data Validation Error occured.", "Fail", JOptionPane.ERROR_MESSAGE);
+      if (stock != null) {
+         update.stockUpdate(stock);
+         JOptionPane.showMessageDialog(null, "Success!" + stock.getCar().getReg() + " stock modified", "Success", JOptionPane.INFORMATION_MESSAGE);
+         updateStockTable(stockListTable);
+         populateCurrentStock();
+      } else {
+         JOptionPane.showMessageDialog(null, "Data Validation Error occured.", "Fail", JOptionPane.ERROR_MESSAGE);
       }
 
    }
 
-   protected void generateInvoiceBtnActionPerformed(ActionEvent e) {
+   protected void generateInvoiceBtnActionPerformed(ActionEvent e) throws SQLException {
+
+      GenerateInvoicePane customPanes = new GenerateInvoicePane();
+      String method = customPanes.paymentMethodPane();
+
+      if (method == null) {
+         JOptionPane.showMessageDialog(null, "Cancelled", "Cancelled", JOptionPane.NO_OPTION);
+      } else {
+         int status = customPanes.statusPane();
+         Invoice invoice = new Invoice();
+         invoice = buildInvoice(status, method);
+         if (invoice != null) {
+
+            GenerateInvoice.genInvoice(invoice);
+            dispose();
+            JOptionPane.showMessageDialog(this, "Invoice Generated", "Success", JOptionPane.INFORMATION_MESSAGE);
+         } else {
+            JOptionPane.showMessageDialog(null, "An Error has occured", "Fail", JOptionPane.ERROR_MESSAGE);
+         }
+
+      }
 
    }
 
@@ -554,7 +592,7 @@ protected void searchBtnActionPerformed(ActionEvent e) {
    }
 
    public static void populateNonStock() { //Populate The insert to stock combo box with Cars not found in the stock table already.
-      nonAssignedCars.removeAllElements();
+      getNonAssignedCars().removeAllElements();
       conn.setConn(); //Make a connection
       String sql = "Select Car.Reg,Car.Model,Car.Make from Car LEFT JOIN Stock ON Car.CarId = Stock.Car where Stock.Car IS NULL";
 
@@ -567,7 +605,7 @@ protected void searchBtnActionPerformed(ActionEvent e) {
             String resultSet = conn.getRs().getString("Reg") + ", "; //Grab the first name from the table
             resultSet = resultSet + " " + conn.getRs().getString("Model") + ", "; //Grab the last name from the table
             resultSet = resultSet + " " + conn.getRs().getString("Make"); //Grab the last name from the table
-            nonAssignedCars.addElement(resultSet); //add the result set data into the combo box
+            getNonAssignedCars().addElement(resultSet); //add the result set data into the combo box
          }
       } catch (Exception err) {
          System.out.println(err);
@@ -595,7 +633,7 @@ protected void searchBtnActionPerformed(ActionEvent e) {
    }
 
    public static void populateSeller() throws SQLException {
-      staffList.removeAllElements();
+      getStaffList().removeAllElements();
       conn.setConn(); //Make a connection
       String sql = "Select StaffID,Staff_Firstname,Staff_LastName from garage.Staff";
 
@@ -608,13 +646,18 @@ protected void searchBtnActionPerformed(ActionEvent e) {
             //list.addElement(id);
             String staffName = conn.getRs().getInt("StaffID") + " " + conn.getRs().getString("Staff_Firstname"); //Grab the first name from the table
             staffName = staffName + " " + conn.getRs().getString("Staff_Lastname"); //Grab the last name from the table
-            staffList.addElement(staffName); //add the result set data into the combo box
+            getStaffList().addElement(staffName); //add the result set data into the combo box
          }
       } catch (Exception err) {
          System.out.println(err);
       }
    }
 
+   /**
+    * Populates the customer combo box with data that it retrieves from the database.
+    * 
+    * @throws SQLException
+    */
    public static void populateCustomer() throws SQLException {
       customerList.removeAllElements();
       conn.setConn();
@@ -626,10 +669,10 @@ protected void searchBtnActionPerformed(ActionEvent e) {
          while (conn.getRs().next()) { //loop through the result set
             //int id = rs.getInt("id");
             //list.addElement(id);
-            String customerName = conn.getRs().getInt("customerID") +" " + conn.getRs().getString("FirstName"); //Grab the first name from the table
+            String customerName = conn.getRs().getInt("customerID") + " " + conn.getRs().getString("FirstName"); //Grab the first name from the table
             customerName = customerName + " " + conn.getRs().getString("LastName"); //Grab the last name from the table
             customerList.addElement(customerName); //add the result set data into the combo box
-            
+
          }
       } catch (Exception err) {
          System.out.println(err);
@@ -684,23 +727,29 @@ protected void searchBtnActionPerformed(ActionEvent e) {
       return carID;
    }
 
-   public static Stock buildStockForUpdate() throws SQLException {
+   /**
+    * Method used to build a Stock object for use with the UpdateStock class and pop-out Stock modifier GUI.
+    * Pulls initial information from the Stock Item combo and makes use of the String.Split() method in order to build SQL queries later.
+    * This method does not make use of any SQL queries itself.
+    * @return Stock Object
+    */
+   public static Stock buildStockForUpdate() {
       //Objects required to build
       Stock stock = new Stock();
       Car car = new Car();
       Staff staff = new Staff();
       Customer customer = new Customer();
- 
-      String stockDetails = stockItemCombo.getSelectedItem().toString();
-      String stockDetailsArray[] = stockDetails.split(",");
-      stock.setStockNo(Integer.parseInt(stockDetailsArray[0]));
-      car.setReg(stockDetailsArray[1]);
-      car.setMake(stockDetailsArray[2]);
-      stock.setCar(car);
 
+      String stockDetails = stockItemCombo.getSelectedItem().toString(); //Get the selected item of the combo box and assign contents to a variable
+      String stockDetailsArray[] = stockDetails.split(","); //Split the string into seperate parts and put them into an array.
+      stock.setStockNo(Integer.parseInt(stockDetailsArray[0])); //First element will be the ID
+      car.setReg(stockDetailsArray[1]); //Second element will be the Cars Reg
+      car.setMake(stockDetailsArray[2]); //Thrid element will be the Cars make
+      stock.setCar(car);
+      //Assign the stock price from the mod field. Requires Double.parseDouble to convert.
       stock.setPrice(Double.parseDouble(modPriceField.getText()));
 
-      String customerName = customerCombo.getSelectedItem().toString();
+      String customerName = customerCombo.getSelectedItem().toString(); //Repeat same thing for Customer combo to split the information and store into an array
       String customerNameArray[] = customerName.split(" ");
       customer.setCustomerID(Integer.parseInt(customerNameArray[0]));
       customer.setFname(customerNameArray[1]);
@@ -708,67 +757,47 @@ protected void searchBtnActionPerformed(ActionEvent e) {
 
       String staffName = sellerCombo.getSelectedItem().toString();
       String staffNameArray[] = staffName.split(" ");
-      staff.setFirstName(staffNameArray[0]);
-      staff.setLastName(staffNameArray[1]);
-      staff.setStaff_id(findStaffID(staff));
+      staff.setStaff_id(Integer.parseInt(staffNameArray[0]));
+      staff.setFirstName(staffNameArray[1]);
+      staff.setLastName(staffNameArray[2]);
 
-      stock.setCustomer(customer);
-      stock.setStaff(staff);
+      stock.setCustomer(customer); //Assign the stock objects customer object
+      stock.setStaff(staff); //Assign the stock objects Staff object
 
-      stock.setStatus(statusCombo.getSelectedItem().toString());
-      stock.toString();
-      return stock;
+      stock.setStatus(statusCombo.getSelectedItem().toString()); //set the stocks status by retrriving the data from the combo box
+      //stock.toString(); //Debug toString
+      return stock; //Return the Stock Object
    }
 
-   //Find staff ID for use within the UPDATE stock method
-   public static int findStaffID(Staff staff) throws SQLException {
-      int staffID = 0;
-      String sql = "Select StaffID from Staff where Staff_firstname = ? AND Staff_Lastname = ?";
-      conn.setPstat(conn.getConn().prepareStatement(sql));
-      conn.getPstat().setString(1, staff.getFirstName());
-      conn.getPstat().setString(2, staff.getLastName());
-      conn.setRs(conn.getPstat().executeQuery());
-      if (conn.getRs().next()) {
-         staffID = conn.getRs().getInt("StaffID");
-         try {
-            if (staffID == 0) {
-               throw new DataValidationFail("BAD STAFF ID"); //Because values are pre-set in the combo box this error should not occur.
-            }
-         } catch (DataValidationFail e) {
-            JOptionPane.showMessageDialog(null, "Bad STAFF ID", "Fatal Error", JOptionPane.WARNING_MESSAGE);
-            return 1;
-         }
-
-         return staffID;
-      }
-
-      return 1;
-
-   }
-
-
-
+   /**
+    * Method that builds a Stock object from a selected item in the Stock List Table object of the GUI. 
+    * Executes SQL query based on the information of the selected item in the table. Throws an SQLException error 
+    * @return Stock Object 
+    * @throws SQLException
+    */
    public Stock buildStock() throws SQLException {
 
+      //Create new Objects that will make up the Stock object (and the stock object that will be returned)
       Stock stock = new Stock();
       Car car = new Car();
       Customer customer = new Customer();
       Staff seller = new Staff();
-      
+
       conn.setConn();
       try {
-         boolean flag = getStockListTable().getSelectionModel().isSelectionEmpty();
+         boolean flag = getStockListTable().getSelectionModel().isSelectionEmpty(); //Make sure the table has an item selected
          if (flag == false) {
-        	int row = getStockListTable().getSelectedRow();
+            int row = getStockListTable().getSelectedRow(); //get the selected rows index
             row = getStockListTable().getRowSorter().convertRowIndexToModel(row); //If filtering is used we have to convert this across in order for the correct row to be selected
-            int col = 0;
-            String value = getStockListTable().getModel().getValueAt(row, col).toString();
-            String sql = "Select StockNumber,Car,Customer,Price,Status,WhoSold as Seller from Stock Where StockNumber = ?";
-            conn.setPstat(conn.getConn().prepareStatement(sql));
-            conn.getPstat().setString(1, value);
-            conn.setRs(conn.getPstat().executeQuery());
-            
-            if (conn.getRs().next()) {
+            int col = 0; //first column of the selected row 
+            String value = getStockListTable().getModel().getValueAt(row, col).toString(); //adds the first Row+Col entry into a String variable
+            String sql = "Select StockNumber,Car,Customer,Price,Status,WhoSold as Seller from Stock Where StockNumber = ?"; //Setup the SQL p.statement 
+            conn.setPstat(conn.getConn().prepareStatement(sql)); //Set the prepared statement to the sql variable
+            conn.getPstat().setString(1, value); //Set the prepared statement to find the entry found earlier (value variable)
+            conn.setRs(conn.getPstat().executeQuery()); //execute the query
+
+            if (conn.getRs().next()) { //if anything is found through the query
+               //Declare and initalise new variables to the values found in the DB through  the result set
                int stockNumber = conn.getRs().getInt("StockNumber");
                int carID = conn.getRs().getInt("Car");
                int customerID = conn.getRs().getInt("customer");
@@ -776,6 +805,7 @@ protected void searchBtnActionPerformed(ActionEvent e) {
                String status = conn.getRs().getString("Status");
                int staff_ID = conn.getRs().getInt("Seller");
 
+               //Another SQL qeury is required to find information for the car object
                sql = "Select Reg,Model,Make from Car WHERE carId = ?";
                conn.setPstat(conn.getConn().prepareStatement(sql));
                conn.getPstat().setInt(1, carID);
@@ -787,6 +817,7 @@ protected void searchBtnActionPerformed(ActionEvent e) {
                   car.setCarId(carID);
                };
 
+               //Another SQL query is required to find information for the staff object
                sql = "SELECT staff_firstname, staff_lastname from Staff where staffId = ?";
                conn.setPstat(conn.getConn().prepareStatement(sql));
                conn.getPstat().setInt(1, staff_ID);
@@ -795,9 +826,18 @@ protected void searchBtnActionPerformed(ActionEvent e) {
                   seller.setFirstName(conn.getRs().getString("Staff_FirstName"));
                   seller.setLastName(conn.getRs().getString("Staff_LastName"));
                };
+               //Another SQL query is required to find information for the customer object
+               sql = "Select Customer.FirstName,Customer.Lastname from Customer where CustomerID = ?";
+               conn.setPstat(conn.getConn().prepareStatement(sql));
+               conn.getPstat().setInt(1, customerID);
+               conn.setRs(conn.getPstat().executeQuery());
+               if (conn.getRs().next()) {
+                  customer.setFname(conn.getRs().getString("FirstName"));
+                  customer.setLname(conn.getRs().getString("LastName"));
+               };
 
-               System.out.println(seller.toString());
-
+               //System.out.println(seller.toString()); //Debug toString outputs
+               //Set and assign all the objects correctly before completing the stock object for  return
                customer.setCustomerID(customerID);
                seller.setStaff_id(staff_ID);
                stock.setStatus(status);
@@ -807,26 +847,130 @@ protected void searchBtnActionPerformed(ActionEvent e) {
                stock.setPrice(price);
                stock.setStockNo(Integer.parseInt(value));
 
-               System.out.println(stock.toString());
+               //System.out.println(stock.toString()); //Debug toString outputs
             };
 
             return stock;
 
          } else {
-            JOptionPane.showMessageDialog(rootPane, "No Stock selected", "Error!", JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(rootPane, "No Stock selected", "Error!", JOptionPane.WARNING_MESSAGE); //error message if nothing on the table was selected
 
          }
       } catch (NullPointerException e) {
-         return null;
+         return null; //Return a null object if a nullpointerexception is thrown, this will be used in the button AL to end the method before the program crashes
       }
-      return null;
+      return null; //return null which will be used in the AL of the button that calls this method to prevent the program from crashing through SQL issue.
 
    }
-   
-   public void search() {
-	  
+
+   /**
+    * Method that finds any Stock item that is eligible to be invoiced (i.e.- A Stock in the DB that has the status (Sold-Not invoiced) 
+    * After it has ran an SQL Prepared statement it cycles through a while loop to populate the invoice combo with the values
+    * found in the SQL query.
+    */
+   public void populateInvoiceable() {
+      invoiceableStock.removeAllElements(); //Removes all the elements to avoid duplication of elements if the method is called multiple times
+      conn.setConn(); //start the connection
+      String sql = "Select Stock.StockNumber,Stock.Status, Car.Reg from Stock inner join Car where Car = Car.CarId AND Status = \"Sold-Not Invoiced\"";
+      try {
+         // assume that all objects were all properly defined
+         conn.setPstat(conn.getConn().prepareStatement(sql)); //set the prepared statement
+         conn.setRs(conn.getPstat().executeQuery(sql)); //save the results into the result set
+         while (conn.getRs().next()) { //loop through the result set
+            //int id = rs.getInt("id");
+            //list.addElement(id);
+            String invoiceable = conn.getRs().getInt("StockNumber") + " " + conn.getRs().getString("Reg"); //Grab the first name from the table
+            invoiceableStock.addElement(invoiceable); //add the result set data into the combo box
+
+         }
+      } catch (Exception err) {
+         System.out.println(err);
+      }
    }
-   
+
+   /**
+    * Method used to Build an Invoice object for use in conjunction with the ManageInvoice class in order to generate an invoice for a customer. 
+    * Called when the Generate Invoice button is clicked on the Manage Stock GUI.
+    * Because it runs SQL code it throws an SQLException on query fail.
+    * 
+    * @param status- The status of the invoice object to be returned at the end of the method. 
+    * @param method - The payment method that will be assigned to the invoice to be returned at the end of the end of the method.
+    * @return Invoice Object
+    * @throws SQLException
+    */
+   public Invoice buildInvoice(int status, String method) throws SQLException {
+
+      SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy"); //Simple date format to format the date into the specified format
+      long currentTime = System.currentTimeMillis(); //New variable to catch the current system time/date
+      Date today = new Date(currentTime); //Slap the date into a variable to be later assigned into the open slot for the invoice object 
+      Invoice invoice = new Invoice(); //New invoice object, this will be created and all objects within it before being returned at the end of the method
+      invoice.setIssueDate(sdf.format(today)); //Set the invoice date String to the specified date object with formatting applied
+      invoice.setPaymentMethod(method);
+      invoice.setInvoiceStatus(status);
+
+      //Create the objects required by the invoice object
+      Customer customer = new Customer();
+      Address address = new Address();
+      Stock stock = new Stock();
+      Car car = new Car();
+
+      //Open Connection
+      conn.setConn();
+      conn.setPstat(null);
+
+      //Get the required information to populate the customer object in order to satisfy invoice requirements
+      String stockItem = invGenStockItemCombo.getSelectedItem().toString();
+      String stockItemArray[] = stockItem.split(" ");
+      int stockNumber = Integer.parseInt(stockItemArray[0]);
+      //SQL queries to build customer
+      String sql = "Select Stock.StockNumber,Stock.Customer,Stock.Price,Customer.FirstName,Customer.LastName,Customer.AddressLine1" +
+         ",Customer.AddressLine2,Customer.Town,Customer.County,Customer.Eircode from Stock Inner Join Customer " +
+         "Where Stock.StockNumber = ? and Customer = CustomerID";
+
+      conn.setPstat(conn.getConn().prepareStatement(sql));
+      conn.getPstat().setInt(1, stockNumber);
+      conn.setRs(conn.getPstat().executeQuery());
+
+      if (conn.getRs().next()) { //If the result set produces results the code in the if statement is ran which assigns the customer object details
+         stock.setStockNo(conn.getRs().getInt("StockNumber"));
+         stock.setPrice(conn.getRs().getDouble("Price"));
+         customer.setCustomerID(conn.getRs().getInt("Customer"));
+         customer.setFname(conn.getRs().getString("FirstName"));
+         customer.setLname(conn.getRs().getString("LastName"));
+         address.setAddressLn1(conn.getRs().getString("AddressLine1"));
+         address.setAddressLn2(conn.getRs().getString("AddressLine2"));
+         address.setTown(conn.getRs().getString("Town"));
+         address.setCounty(conn.getRs().getString("County"));
+         address.setEircode(conn.getRs().getString("Eircode"));
+         customer.setAddress(address);
+      } else {
+         return null;
+      }
+      //SQL queries to build car
+      sql = "Select CarId,Make,Model,Reg from Car where Reg= ?";
+      conn.setPstat(conn.getConn().prepareStatement(sql));
+      conn.getPstat().setString(1, stockItemArray[1]);
+      System.out.println(stockItemArray[1]);
+      conn.setRs(conn.getPstat().executeQuery());
+      if (conn.getRs().next()) { //If the result set produces results the code in the if statement is ran which assigns the customer object details
+         car.setCarId(conn.getRs().getInt("CarId"));
+         car.setMake(conn.getRs().getString("Make"));
+         car.setModel(conn.getRs().getString("Model"));
+         car.setReg(conn.getRs().getString("Reg"));
+         invoice.setPrice(stock.getPrice());
+      } else {
+
+         return null;
+      }
+
+      //Assign the Invoice object with the objects created in this method 
+      invoice.setStock(stock);
+      invoice.setCustomer(customer);
+      invoice.setCar(car);
+      System.out.println(invoice.toString());
+
+      return invoice;
+   }
 
    //Getters and Setters
    public JTable getStockListTable() {
@@ -835,6 +979,22 @@ protected void searchBtnActionPerformed(ActionEvent e) {
 
    public void setStockListTable(JTable stockListTable) {
       this.stockListTable = stockListTable;
+   }
+
+   public static DefaultComboBoxModel getNonAssignedCars() {
+      return nonAssignedCars;
+   }
+
+   public static void setNonAssignedCars(DefaultComboBoxModel nonAssignedCars) {
+      ManageStockGui.nonAssignedCars = nonAssignedCars;
+   }
+
+   public static DefaultComboBoxModel getStaffList() {
+      return staffList;
+   }
+
+   public static void setStaffList(DefaultComboBoxModel staffList) {
+      ManageStockGui.staffList = staffList;
    }
 
 }

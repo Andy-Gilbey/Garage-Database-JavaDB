@@ -1,5 +1,9 @@
 package ErrorHandling;
 
+/**
+ * @author Andrew Gilbey/C00263656
+ *
+ */
 public class Blanks extends Exception{
 
 	public Blanks() {

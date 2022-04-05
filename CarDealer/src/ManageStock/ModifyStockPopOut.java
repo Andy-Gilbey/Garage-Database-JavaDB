@@ -29,6 +29,10 @@ import Tables.Customer;
 import Tables.Staff;
 import Tables.Stock;
 
+/**
+ * @author Andrew GIlbey/c0026365
+ *
+ */
 public class ModifyStockPopOut extends JFrame {
 
    DbConnection conn = new DbConnection();
@@ -60,8 +64,16 @@ public class ModifyStockPopOut extends JFrame {
    private JCheckBox allowRemoveChkbox;
    private JButton removeBtn;
 
+   /**
+    * ModifyStockPopout calls the initialise method in order to build the GUI and then populates that gui with information found in the stock object parameter.
+    * (build in another class).
+    * @param stock - stock object that will be used as a base to populate relevant fields of the gui 
+    * @param parent - passes through the parent gui in order to refresh tables on that (parent) gui when they have been altered through this (child) class.
+    * @throws HeadlessException - Thrown when code that is dependent on a keyboard, display, or mouse is called in an environment that does not support a keyboard, display, or mouse.
+    * @throws SQLException - An exception that provides information on a database access error or other errors.
+    */
    public ModifyStockPopOut(Stock stock, ManageStockGui parent) throws HeadlessException, SQLException {
-      initalise();
+      initialise();
 
       stockNoField.setText(Integer.toString(stock.getStockNo()));
 
@@ -71,19 +83,16 @@ public class ModifyStockPopOut extends JFrame {
       carDetails = carDetails + stock.getCar().getModel();
       carField.setText(carDetails);
 
-      String sellerDetails;
-      sellerDetails = stock.getStaff().getFirstName() + " ";
-      sellerDetails = sellerDetails + stock.getStaff().getLastName();
-      sellerCombo.setSelectedItem(sellerDetails);
-      System.out.println(sellerDetails);
+      sellerCombo.setSelectedItem(stock.getStaff().getStaff_id() + " " + stock.getStaff().getFirstName() + " " + stock.getStaff().getLastName());
+      //System.out.println(sellerDetails);
 
       priceField.setText(Double.toString(stock.getPrice()));
-      customerCombo.setSelectedItem(stock.getCustomer().getFname() + " " + stock.getCustomer().getLname());
+      customerCombo.setSelectedItem(stock.getCustomer().getCustomerID() + " " + stock.getCustomer().getFname() + " " + stock.getCustomer().getLname());
       statusCombo.setSelectedItem(stock.getStatus());
       gui = parent;
    }
 
-   public void initalise() throws SQLException {
+   public void initialise() throws SQLException {
 
       headerPanel = new JPanel();
       titleLabel = new JLabel();
@@ -208,8 +217,7 @@ public class ModifyStockPopOut extends JFrame {
       statusCombo.setModel(new DefaultComboBoxModel < > (new String[] {
          "In Stock",
          "On Hold",
-         "Sold-Not Invoiced",
-         "Sold"
+         "Sold-Not Invoiced"
       }));
       bodyPanel.add(statusCombo);
       statusCombo.setBounds(120, 150, 200, 21);
@@ -258,6 +266,11 @@ public class ModifyStockPopOut extends JFrame {
       setLocationRelativeTo(null);
    }
 
+   /**
+    * ItemState listener that will change the status of the remove button to either disabled or enabled
+    * dependant on the chec-kboxs current state (checked or not).
+    * @param ItemEvent e
+    */
    protected void allowRemoveChkboxItemStateChanged(ItemEvent e) {
       if (removeBtn.isEnabled() == false) {
          removeBtn.setEnabled(true);
@@ -267,11 +280,17 @@ public class ModifyStockPopOut extends JFrame {
 
    }
 
+   /**
+    * ActionListener for the remove button. Checks to ensure the user wants to actually delete and then valiadates the stock item (not null)
+    * calls methods from the Delete Stock class in order to delete a stock item and remove it from the db
+    * @param ActionEvent e
+    * @throws SQLException
+    */
    protected void removeBtnActionPerformed(ActionEvent e) throws SQLException {
 
       int selectedOption = JOptionPane.showConfirmDialog(bodyPanel,
          "Are you sure you want to delete this stock? this cannot be undone.",
-         "Choose",
+         "Warning",
          JOptionPane.YES_NO_OPTION);
       if (selectedOption == JOptionPane.YES_OPTION) {
          DeleteStock rmv = new DeleteStock();
@@ -293,6 +312,11 @@ public class ModifyStockPopOut extends JFrame {
 
    }
 
+   /**
+    * ActionListener for the back button. disposes the frame and updates any table or combo-box on the gui for the next time a user opens it
+    * @param ActionEvent e
+    * @throws SQLException
+    */
    protected void backBtnActionPerformed(ActionEvent e) throws SQLException {
       dispose();
       ManageStockGui.populateNonStock();
@@ -302,6 +326,12 @@ public class ModifyStockPopOut extends JFrame {
 
    }
 
+   /**
+    * ActionListener for the save changes button. Creates a new stock object and builds it using the buildstock method which extracts data from the gui.
+    * Calls a method (stockUpdate) from the updateStock class in order to amend the (selected) record on the db 
+    * @param ActionEvent e
+    * @throws SQLException
+    */
    protected void saveChangesBtnActionPerformed(ActionEvent e) throws SQLException {
       Stock stock = new Stock();
       UpdateStock update = new UpdateStock();
@@ -322,6 +352,10 @@ public class ModifyStockPopOut extends JFrame {
 
    }
 
+   /**
+    * Populates the seller(Staff) combo box of the gui with data retrieved from the db
+    * @throws SQLException
+    */
    public void populateSeller() throws SQLException {
       staffList.removeAllElements();
       conn.setConn(); //Make a connection
@@ -343,6 +377,10 @@ public class ModifyStockPopOut extends JFrame {
       }
    }
 
+   /**
+    * Populates the Customer combo box of the gui with data retrieved from the db
+    * @throws SQLException
+    */
    public void populateCustomer() throws SQLException {
       customerList.removeAllElements();
       conn.setConn();
@@ -364,6 +402,10 @@ public class ModifyStockPopOut extends JFrame {
       }
    }
 
+   /**
+    * @return Stock - stock item which data is made up of data extracted from the gui. Later passed onto other methods in order to manipulate the data of the db (insert,update etc)
+    * @throws SQLException
+    */
    public Stock buildStock() throws SQLException {
       Stock stock = new Stock();
       Customer customer = new Customer();
@@ -393,7 +435,7 @@ public class ModifyStockPopOut extends JFrame {
       customer.setCustomerID(Integer.parseInt(customerNameArray[0]));
       customer.setFname(customerNameArray[1]);
       customer.setLname(customerNameArray[2]);
-      //System.out.println(customer.toString()); 
+      //System.out.println(customer.toString()); //Debug
       stock.setCustomer(customer);
 
       //Setout Seller/Staff
@@ -403,7 +445,7 @@ public class ModifyStockPopOut extends JFrame {
       seller.setFirstName(staffNameArray[1]);
       seller.setLastName(staffNameArray[2]);
       stock.setStaff(seller);
-      //System.out.println(stock.toString());
+      //System.out.println(stock.toString()); //Debug
 
       return stock;
    }

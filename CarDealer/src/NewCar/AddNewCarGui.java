@@ -29,9 +29,11 @@ import ErrorHandling.DataValidationFail;
 import ErrorHandling.IntegrityConstraintValidation;
 import Tables.Car;
 
+/**
+ * @author Andrew Gilbey/C00263656
+ *
+ */
 public class AddNewCarGui extends JFrame {
-
-
 
    //Database Connection
    static DbConnection conn = new DbConnection();
@@ -60,8 +62,13 @@ public class AddNewCarGui extends JFrame {
    private JLabel transmissionLabel;
    private JLabel vinLabel;
 
+   /**
+    * initialise method called in the constructor. Contains all code relating to the Add New Car GUI.
+    * @throws HeadlessException-Thrown when code that is dependent on a keyboard, display, or mouse is called in an environment that does not support a keyboard, display, or mouse.
+    * @throws SQLException- An exception that provides information on a database access error or other errors.
+    */
    public AddNewCarGui() throws HeadlessException, SQLException {
-      initalise();
+      initialise();
       updateTable(carListtable);
    }
 
@@ -69,7 +76,7 @@ public class AddNewCarGui extends JFrame {
       "serial",
       "serial"
    })
-   public void initalise() {
+   public void initialise() {
       headerPanel = new JPanel();
       titleLabel = new JLabel();
       bodyPanel = new JPanel();
@@ -231,7 +238,7 @@ public class AddNewCarGui extends JFrame {
       carDetailsPanel.add(transmissionCombo);
       transmissionCombo.setBounds(390, 130, 140, 21);
       carDetailsPanel.add(vinField);
-      vinField.setTransferHandler(null);//Prevent copy and paste into the text field
+      vinField.setTransferHandler(null); //Prevent copy and paste into the text field
       vinField.setBounds(80, 90, 140, 21);
       vinField.addKeyListener(new KeyAdapter() {
 
@@ -241,7 +248,7 @@ public class AddNewCarGui extends JFrame {
          }
       });
       carDetailsPanel.add(modelField);
-      modelField.setTransferHandler(null);//Prevent copy and paste into the text field
+      modelField.setTransferHandler(null); //Prevent copy and paste into the text field
       modelField.setBounds(390, 50, 140, 21);
       modelField.addKeyListener(new KeyAdapter() {
          public void keyTyped(KeyEvent e) {
@@ -282,12 +289,12 @@ public class AddNewCarGui extends JFrame {
       saveBtn.addActionListener(new ActionListener() {
          public void actionPerformed(ActionEvent e) {
             try {
-				saveBtnActionPerformed(e);
-			} catch (SQLException e1) {
-				e1.printStackTrace();
-			} catch (IntegrityConstraintValidation e1) {
-				e1.printStackTrace();
-			}
+               saveBtnActionPerformed(e);
+            } catch (SQLException e1) {
+               e1.printStackTrace();
+            } catch (IntegrityConstraintValidation e1) {
+               e1.printStackTrace();
+            }
          }
       });
       carDetailsPanel.add(saveBtn);
@@ -367,6 +374,13 @@ public class AddNewCarGui extends JFrame {
    //Getters and Setters
 
    //Action Listeners
+
+   /**
+    * Action Listener method of the clear button. Resets all Fields to empty.
+    * Called when the clear button is clicked. (Also called in other methods through the clearBtn.doClick() method associated with
+    * the JButton object.
+    * @param Action Event e
+    */
    protected void clearBtnActionPerformed(ActionEvent e) {
       makeCombo.setSelectedItem("Alfa Romeo");
       modelField.setText("");
@@ -377,40 +391,48 @@ public class AddNewCarGui extends JFrame {
 
    }
 
+   /**
+    * Save button calls a number of methods to validate data input into the GUI and insert data from the GUI into the database itself. 
+    * @param Action Event e
+    * @throws SQLException - An exception that provides information on a database access error or other errors.
+    * @throws IntegrityConstraintValidation - An exception thrown if the integrity of the database is questioned. (User attempted to add a duplicate value to a table element that does not allow duplicates)
+    */
    protected void saveBtnActionPerformed(ActionEvent e) throws SQLException, IntegrityConstraintValidation {
       Car car = new Car();
       car = buildCar();
-      if(car != null)
+      if (car != null) //IMPORTANT if statement, the object must be checked if it is null or not otherwise could cause an exception
       {
-    	  int flag = InsertCar.validation(car);
-    	  if(flag !=1)
-    	  {
-    		  	  InsertCar.carInsert(car);
-                  updateTable(carListtable);
-                  clearBtn.doClick();
-    	  }
-    	  else
-    	  {
-    		  JOptionPane.showMessageDialog(rootPane, "Integrity Of database compromised. Duplicate value of Reg or VIN found", "Data Validation Error", JOptionPane.ERROR_MESSAGE);
-    	  }
-    	  
-        
+         int flag = InsertCar.validation(car); //Runs the validation method to ensure no duplicates are found
+         if (flag != 1) {
+            InsertCar.carInsert(car); //Calls the insert car method to insert the data from the GUI to the database
+            updateTable(carListtable); //refresh the table data on the GUI to coincide with the changes saved.
+            clearBtn.doClick(); //forces a click on the clear button to clear fields
+         } else {
+            //Error message displayed on the screen
+            JOptionPane.showMessageDialog(rootPane, "Integrity Of database compromised. Duplicate value of Reg or VIN found", "Data Validation Error", JOptionPane.ERROR_MESSAGE);
+         }
+      } else {
+         //Error message displayed on the screen
+         JOptionPane.showMessageDialog(rootPane, "A data validation error has occured", "Data Validation Error", JOptionPane.ERROR_MESSAGE);
       }
-      else
-      {
-          JOptionPane.showMessageDialog(rootPane, "A data validation error has occured", "Data Validation Error", JOptionPane.ERROR_MESSAGE);
-      }
-
-
-
    }
 
+   /**
+    * Calls the dispose method of th JFrame class in order to close/exit from the GUI and return to the landing page.
+    * @param ActionEvent e
+    */
    protected void closeBtnActionPerformed(ActionEvent e) {
       this.dispose();
 
    }
 
    //Methods
+
+   /**
+    *  Method that fully populates a given table on the GUI with information retrieved from the Database
+    * @param table - the table that resides on the AddNewCar GUI
+    * @throws SQLException -  An exception that provides information on a database access error or other errors.
+    */
    public void updateTable(JTable table) throws SQLException {
       String sql = "Select Reg, make , model from Car";
       conn.setConn();
@@ -432,6 +454,11 @@ public class AddNewCarGui extends JFrame {
 
    }
 
+   /**
+    * Method that creates a Car Object with information entered on the GUI. 
+    * Uses If statement with OR operators in order to validation certain information on the GUI before the object is built.
+    * @return Car - A car object that is to be passed to another method to manipulate data in the database
+    */
    public Car buildCar() {
       Car car = new Car();
 
@@ -439,9 +466,10 @@ public class AddNewCarGui extends JFrame {
          if (modelField.getText().isEmpty() || regField.getText().isBlank() || vinField.getText().isEmpty()) {
             throw new DataValidationFail("A required data Fields is blank");
          } else {
+            String reg = regField.getText().replaceAll("\\s+", ""); //remove all spaces from the string to keep integrity
             car.setMake(makeCombo.getSelectedItem().toString());
             car.setModel(modelField.getText());
-            car.setReg(regField.getText());
+            car.setReg(reg);
             car.setVin(vinField.getText());
             car.setTransmission(transmissionCombo.getSelectedItem().toString());
             car.setColour(colourCombo.getSelectedItem().toString());

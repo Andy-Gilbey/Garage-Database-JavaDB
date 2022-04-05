@@ -23,6 +23,9 @@ import ErrorHandling.Blanks;
 import Tables.Staff;
 import Tables.User;
 
+/**
+ * @author Andrew Gilbey/C00263656
+ */
 public class EditExistingUser extends JFrame {
 
    static DbConnection conn = new DbConnection();
@@ -47,8 +50,13 @@ public class EditExistingUser extends JFrame {
    private static JTextField usernameField;
    private JLabel usernameLabel;
 
+   /**
+    * Constructor which calls the initialise method to open the gui
+    * @param user - User is tested for its level, if 0 the user is an admin otherwise a standard user 
+    * @throws HeadlessException - Thrown when code that is dependent on a keyboard, display, or mouse is called in an environment that does not support a keyboard, display, or mouse.
+    */
    public EditExistingUser(User user) throws HeadlessException {
-      initalise();
+      initialise();
       initalUsername = user.getUsername();
       getusernameField().setText(user.getUsername());
       if (user.getLevel() == 0) {
@@ -60,7 +68,7 @@ public class EditExistingUser extends JFrame {
 
    }
 
-   private void initalise() {
+   private void initialise() {
       //Font Setup
       Font inter18 = new Font("Inter", 0, 18);
       Font inter14 = new Font("Inter", 0, 14);
@@ -183,6 +191,11 @@ public class EditExistingUser extends JFrame {
       setLocationRelativeTo(null);
    }
 
+   /**
+    * ActionListener for the reset button. resets a users password to a default value and then calls the dispose method to exit the frame
+    * @param ActionEvent e
+    * @throws SQLException
+    */
    protected void resetBtnactionPerformed(ActionEvent e) throws SQLException {
       UpdateUser update = new UpdateUser();
       update.resetPassword(initalUsername);
@@ -190,12 +203,22 @@ public class EditExistingUser extends JFrame {
       this.dispose();
    }
 
+   /**
+    * ActionListener of the close button. Calls the dispose method from the JFrame class to dispose of the frame.
+    * @param ActionEvent e
+    */
    protected void closeBtnactionPerformed(ActionEvent e) {
       this.dispose();
 
    }
 
    //Action Listener
+   /**
+    * ActionListener for the save button. Calls the pullUser method and valiadtion method to create a user object built by 
+    * input data on the gui and then passes it through the updateUser method in order to change data of the Db
+    * @param ActionEvent e
+    * @throws SQLException
+    */
    protected void saveBtnActionPerformed(ActionEvent e) throws SQLException {
       User user = new User();
       user = pullUser();
@@ -240,6 +263,9 @@ public class EditExistingUser extends JFrame {
    }
 
    //Populate Satff Method to ensure the combo box populates from the DB
+   /**
+    * Populates the staff combo box with entries that are taken from the DB using a prepared statement
+    */
    public static void populateStaff() {
       staffList.removeAllElements();
       conn.setConn(); //Make a connection
@@ -261,6 +287,11 @@ public class EditExistingUser extends JFrame {
       }
    }
 
+   /**
+    * Returns a user based on information on the gui s
+    * @return user - a user object built using data extracted from the gui  (user input)
+    * @throws SQLException
+    */
    public static User pullUser() throws SQLException {
 
       if (usernameField.getText().equals("")) {

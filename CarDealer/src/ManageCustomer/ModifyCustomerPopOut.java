@@ -10,7 +10,6 @@ import java.awt.event.ItemListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.sql.SQLException;
-
 import javax.swing.BorderFactory;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.ImageIcon;
@@ -23,12 +22,15 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.WindowConstants;
-
 import ErrorHandling.DataValidationFail;
 import ErrorHandling.IntegrityConstraintValidation;
 import Tables.Address;
 import Tables.Customer;
 
+/**
+ * @author Andrew GIlbey/C00263656
+ *
+ */
 public class ModifyCustomerPopOut extends JFrame {
 
    private JTextField addressLn1Field;
@@ -61,82 +63,87 @@ public class ModifyCustomerPopOut extends JFrame {
    private JTextField townField;
    private JLabel townLabel;
 
+   /**
+    * Constructor that takes in a customer object, this so the gui fields can be pre-populated with existing date which the user
+    * can then change in order and send on to the db. If the default customer (id=1) is sent the pop out gui fields will be disabled
+    * as that specific record CANNOT be edited or deleted.
+    * @param customer - takes in a customer object to populate the fields on the popout 
+    * @throws HeadlessException
+    * @throws SQLException
+    */
    public ModifyCustomerPopOut(Customer customer) throws HeadlessException, SQLException {
       initalise();
-      if(customer.getCustomerID()!=1)
-      {
-    	  customerIDField.setText(String.valueOf(customer.getCustomerID()));
-          fNameField.setText(customer.getFname());
-          lNameField.setText(customer.getLname());
-          addressLn1Field.setText(customer.getAddress().getAddressLn1());
-          addressLn2Field.setText(customer.getAddress().getAddressLn2());
-          townField.setText(customer.getAddress().getTown());
-          countyCombo.setSelectedItem(customer.getAddress().getCounty());
-          eircodeField.setText(customer.getAddress().getEircode());
-          phoneField.setText(customer.getPhone());
-          emailField.setText(customer.getEmail());
-          int budget = (int) customer.getBudget();
-          switch (budget) {
-          case 1000:
-             budgetCombo.setSelectedIndex(0);
-             break;
+      if (customer.getCustomerID() != 1) {
+         customerIDField.setText(String.valueOf(customer.getCustomerID()));
+         fNameField.setText(customer.getFname());
+         lNameField.setText(customer.getLname());
+         addressLn1Field.setText(customer.getAddress().getAddressLn1());
+         addressLn2Field.setText(customer.getAddress().getAddressLn2());
+         townField.setText(customer.getAddress().getTown());
+         countyCombo.setSelectedItem(customer.getAddress().getCounty());
+         eircodeField.setText(customer.getAddress().getEircode());
+         phoneField.setText(customer.getPhone());
+         emailField.setText(customer.getEmail());
+         int budget = (int) customer.getBudget();
+         switch (budget) {
+         case 1000:
+            budgetCombo.setSelectedIndex(0);
+            break;
 
-          case 5000:
-             budgetCombo.setSelectedIndex(1);
-             break;
+         case 5000:
+            budgetCombo.setSelectedIndex(1);
+            break;
 
-          case 15000:
-             budgetCombo.setSelectedIndex(2);
-             break;
+         case 15000:
+            budgetCombo.setSelectedIndex(2);
+            break;
 
-          case 20000:
-             budgetCombo.setSelectedIndex(3);
-             break;
+         case 20000:
+            budgetCombo.setSelectedIndex(3);
+            break;
 
-          case 30000:
-             budgetCombo.setSelectedIndex(4);
-             break;
+         case 30000:
+            budgetCombo.setSelectedIndex(4);
+            break;
 
-          case 40000:
-             budgetCombo.setSelectedIndex(5);
-             break;
+         case 40000:
+            budgetCombo.setSelectedIndex(5);
+            break;
 
-          case 50000:
-             budgetCombo.setSelectedIndex(6);
-             break;
+         case 50000:
+            budgetCombo.setSelectedIndex(6);
+            break;
 
-          case 75000:
-             budgetCombo.setSelectedIndex(7);
-             break;
+         case 75000:
+            budgetCombo.setSelectedIndex(7);
+            break;
 
-          case 76000:
-             budgetCombo.setSelectedIndex(8);
-             break;
+         case 76000:
+            budgetCombo.setSelectedIndex(8);
+            break;
 
-          default:
-             budgetCombo.setSelectedIndex(0);
-             break;
-          }
+         default:
+            budgetCombo.setSelectedIndex(0);
+            break;
+         }
+      } else {
+         JOptionPane.showMessageDialog(rootPane, "Default customer is non-modifiable data", "Warning", JOptionPane.WARNING_MESSAGE);
+         customerIDField.setText(String.valueOf(customer.getCustomerID()));
+         fNameField.setText(customer.getFname());
+         lNameField.setText(customer.getLname());
+         fNameField.setEnabled(false);
+         lNameField.setEnabled(false);
+         addressLn1Field.setEnabled(false);
+         addressLn2Field.setEnabled(false);
+         townField.setEnabled(false);
+         countyCombo.setEnabled(false);
+         eircodeField.setEnabled(false);
+         phoneField.setEnabled(false);
+         emailField.setEnabled(false);
+         budgetCombo.setEnabled(false);
+         saveChangesBtn.setEnabled(false);
       }
-      else
-      {
-	       JOptionPane.showMessageDialog(rootPane, "Default customer is non-modifiable data", "Warning", JOptionPane.WARNING_MESSAGE);
-    	  customerIDField.setText(String.valueOf(customer.getCustomerID()));
-          fNameField.setText(customer.getFname());
-          lNameField.setText(customer.getLname());
-    	  fNameField.setEnabled(false);
-          lNameField.setEnabled(false);
-          addressLn1Field.setEnabled(false);
-          addressLn2Field.setEnabled(false);
-          townField.setEnabled(false);
-          countyCombo.setEnabled(false);
-          eircodeField.setEnabled(false);
-          phoneField.setEnabled(false);
-          emailField.setEnabled(false);
-          budgetCombo.setEnabled(false);
-          saveChangesBtn.setEnabled(false);
-      }
-     
+
    }
 
    public void initalise() throws SQLException {
@@ -216,12 +223,12 @@ public class ModifyCustomerPopOut extends JFrame {
       removeBtn.addActionListener(new ActionListener() {
          public void actionPerformed(ActionEvent e) {
             try {
-				removeBtnActionPerformed(e);
-			} catch (SQLException e1) {
-				e1.printStackTrace();
-			} catch (IntegrityConstraintValidation e1) {
-				e1.printStackTrace();
-			}
+               removeBtnActionPerformed(e);
+            } catch (SQLException e1) {
+               e1.printStackTrace();
+            } catch (IntegrityConstraintValidation e1) {
+               e1.printStackTrace();
+            }
          }
       });
       bodyPanel.add(removeBtn);
@@ -231,10 +238,10 @@ public class ModifyCustomerPopOut extends JFrame {
       saveChangesBtn.addActionListener(new ActionListener() {
          public void actionPerformed(ActionEvent e) {
             try {
-				saveChangesBtnActionPerformed(e);
-			} catch (DataValidationFail e1) {
-				e1.printStackTrace();
-			}
+               saveChangesBtnActionPerformed(e);
+            } catch (DataValidationFail e1) {
+               e1.printStackTrace();
+            }
          }
       });
       bodyPanel.add(saveChangesBtn);
@@ -274,12 +281,12 @@ public class ModifyCustomerPopOut extends JFrame {
       bodyPanel.add(fnameLabel);
       fnameLabel.setBounds(40, 50, 90, 20);
       fNameField.addKeyListener(new KeyAdapter() {
-          @Override
-          public void keyTyped(KeyEvent e) {
-             if (fNameField.getText().length() >= 45) // limit to 45 characters
-                e.consume();
-          }
-       });
+         @Override
+         public void keyTyped(KeyEvent e) {
+            if (fNameField.getText().length() >= 45) // limit to 45 characters
+               e.consume();
+         }
+      });
 
       lNameLabel.setFont(interM14);
       lNameLabel.setText("Last Name:");
@@ -287,12 +294,12 @@ public class ModifyCustomerPopOut extends JFrame {
       lNameField.setTransferHandler(null); //Disable pasting into field
       lNameLabel.setBounds(40, 80, 110, 20);
       lNameField.addKeyListener(new KeyAdapter() {
-          @Override
-          public void keyTyped(KeyEvent e) {
-             if (lNameField.getText().length() >= 45) // limit to 45 characters
-                e.consume();
-          }
-       });
+         @Override
+         public void keyTyped(KeyEvent e) {
+            if (lNameField.getText().length() >= 45) // limit to 45 characters
+               e.consume();
+         }
+      });
 
       addressLn1Label.setFont(interM14);
       addressLn1Label.setText("Address Line 1:");
@@ -300,12 +307,12 @@ public class ModifyCustomerPopOut extends JFrame {
       addressLn1Label.setBounds(10, 110, 120, 20);
       addressLn1Field.setTransferHandler(null); //Disable pasting into field
       addressLn1Field.addKeyListener(new KeyAdapter() {
-          @Override
-          public void keyTyped(KeyEvent e) {
-             if (addressLn1Field.getText().length() >= 30) // limit to 30 characters
-                e.consume();
-          }
-       });
+         @Override
+         public void keyTyped(KeyEvent e) {
+            if (addressLn1Field.getText().length() >= 30) // limit to 30 characters
+               e.consume();
+         }
+      });
 
       addressLn2Label.setFont(interM14);
       addressLn2Label.setText("Address Line 2:");
@@ -313,12 +320,12 @@ public class ModifyCustomerPopOut extends JFrame {
       addressLn2Field.setTransferHandler(null); //Disable pasting into field
       addressLn2Label.setBounds(10, 140, 120, 20);
       addressLn2Field.addKeyListener(new KeyAdapter() {
-          @Override
-          public void keyTyped(KeyEvent e) {
-             if (addressLn2Field.getText().length() >= 30) // limit to 45 characters
-                e.consume();
-          }
-       });
+         @Override
+         public void keyTyped(KeyEvent e) {
+            if (addressLn2Field.getText().length() >= 30) // limit to 45 characters
+               e.consume();
+         }
+      });
 
       townLabel.setFont(interM14);
       townLabel.setText("Town:");
@@ -352,22 +359,22 @@ public class ModifyCustomerPopOut extends JFrame {
       phoneField.setTransferHandler(null); //disable pasting into field
       phoneField.setBounds(120, 260, 130, 21);
       phoneField.addKeyListener(new KeyAdapter() {
-          @Override
-          public void keyTyped(KeyEvent e) {
-             if (phoneField.getText().length() >= 20) // limit to 20 characters
-                e.consume();
-          }
-       });
+         @Override
+         public void keyTyped(KeyEvent e) {
+            if (phoneField.getText().length() >= 20) // limit to 20 characters
+               e.consume();
+         }
+      });
       bodyPanel.add(emailField);
       emailField.setTransferHandler(null); //disable pasting into field
       emailField.setBounds(120, 290, 180, 21);
       emailField.addKeyListener(new KeyAdapter() {
-          @Override
-          public void keyTyped(KeyEvent e) {
-             if (emailField.getText().length() >= 45) // limit to 45 characters
-                e.consume();
-          }
-       });
+         @Override
+         public void keyTyped(KeyEvent e) {
+            if (emailField.getText().length() >= 45) // limit to 45 characters
+               e.consume();
+         }
+      });
 
       countyCombo.setModel(new DefaultComboBoxModel < > (new String[] {
          "Carlow",
@@ -404,23 +411,23 @@ public class ModifyCustomerPopOut extends JFrame {
       townField.setTransferHandler(null); //disable pasting into field
       townField.setBounds(120, 170, 180, 21);
       townField.addKeyListener(new KeyAdapter() {
-          @Override
-          public void keyTyped(KeyEvent e) {
-             if (townField.getText().length() >= 40) // limit to 45 characters
-                e.consume();
-          }
-       });
+         @Override
+         public void keyTyped(KeyEvent e) {
+            if (townField.getText().length() >= 40) // limit to 45 characters
+               e.consume();
+         }
+      });
 
       bodyPanel.add(eircodeField);
-      eircodeField.setTransferHandler(null); 
+      eircodeField.setTransferHandler(null);
       eircodeField.setBounds(120, 230, 180, 21);
       eircodeField.addKeyListener(new KeyAdapter() {
-          @Override
-          public void keyTyped(KeyEvent e) {
-             if (eircodeField.getText().length() >= 20) // limit to 45 characters
-                e.consume();
-          }
-       });
+         @Override
+         public void keyTyped(KeyEvent e) {
+            if (eircodeField.getText().length() >= 20) // limit to 45 characters
+               e.consume();
+         }
+      });
       bodyPanel.add(lNameField);
       lNameField.setBounds(120, 80, 130, 21);
       bodyPanel.add(addressLn1Field);
@@ -448,32 +455,29 @@ public class ModifyCustomerPopOut extends JFrame {
    }
 
    protected void removeBtnActionPerformed(ActionEvent e) throws SQLException, IntegrityConstraintValidation {
-	   	  Customer customer = new Customer();
-	      customer = buildCustomerDelete();
-	      if (customer != null) {
-	         DeleteCustomer.customerDelete(customer);
-	         dispose();
-	      } else {
-	         JOptionPane.showMessageDialog(bodyPanel, "An Error has occured with Data Validation.", "Error", JOptionPane.ERROR_MESSAGE);
-	      }
+      Customer customer = new Customer();
+      customer = buildCustomerDelete();
+      if (customer != null) {
+         DeleteCustomer.customerDelete(customer);
+         dispose();
+      } else {
+         JOptionPane.showMessageDialog(bodyPanel, "An Error has occured with Data Validation.", "Error", JOptionPane.ERROR_MESSAGE);
+      }
 
-	   }
-   
+   }
 
    protected void saveChangesBtnActionPerformed(ActionEvent e) throws DataValidationFail {
-	   Customer customer = new Customer();
-	   customer = buildCustomer();
-	   if(customer != null) {
-		   UpdateCustomer.customerUpdate(customer);
-		   JOptionPane.showMessageDialog(rootPane, "Customer ID:" + customer.getCustomerID() + " modified", "Success", JOptionPane.INFORMATION_MESSAGE);
-		   dispose();
-	   }
-	   else
-	   {
-	       JOptionPane.showMessageDialog(rootPane, "Data Valiadation Error occured", "Error!", JOptionPane.ERROR_MESSAGE);
-	       dispose();
-	   }
-	   
+      Customer customer = new Customer();
+      customer = buildCustomer();
+      if (customer != null) {
+         UpdateCustomer.customerUpdate(customer);
+         JOptionPane.showMessageDialog(rootPane, "Customer ID:" + customer.getCustomerID() + " modified", "Success", JOptionPane.INFORMATION_MESSAGE);
+         dispose();
+      } else {
+         JOptionPane.showMessageDialog(rootPane, "Data Valiadation Error occured", "Error!", JOptionPane.ERROR_MESSAGE);
+         dispose();
+      }
+
    }
 
    protected void backBtnActionPerformed(ActionEvent e) {
@@ -528,11 +532,11 @@ public class ModifyCustomerPopOut extends JFrame {
          return null;
       }
    }
-   
+
    public Customer buildCustomerDelete() {
-	      Customer customer = new Customer();
-	      customer.setCustomerID(Integer.parseInt(customerIDField.getText()));
-	      return customer;
-	   }
+      Customer customer = new Customer();
+      customer.setCustomerID(Integer.parseInt(customerIDField.getText()));
+      return customer;
+   }
 
 }

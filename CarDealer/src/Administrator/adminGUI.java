@@ -31,6 +31,10 @@ import ErrorHandling.Blanks;
 import Tables.Staff;
 import Tables.User;
 
+/**
+ * @author Andrew Gilbey/C0263656
+ *
+ */
 public class adminGUI extends JFrame {
 
    private JMenuItem addNewUser;
@@ -40,13 +44,13 @@ public class adminGUI extends JFrame {
    //New list model in order to populate the combo box directly from the DB
    private static DefaultComboBoxModel staffList = new DefaultComboBoxModel();
 
-   //Flag to check whether a panel is open or not
+   //Flag to check whether a panel is open or noAt
    private int aupPanelOpen = 0;
    private int euuPanelOpen = 0;
-   
+
    //Error Handling Username
    private static int errorUser = 0;
-   
+
    ///////// Frame Components
    private JMenuItem editExistingUser;
    private JMenu fileMenu;
@@ -81,12 +85,19 @@ public class adminGUI extends JFrame {
    private JButton euuBackBtn;
    private JButton euuEditUserBtn;
 
+   /**
+    * Constructor of the adminGui, calls the initalise method which builds the gui 
+    * @param username - The username of the user that logs in, is reflected on the GUI changing a label on the GUI to reflect who is logged in.
+    */
    public adminGUI(String username) {
       initialise();
       usernameTag.setText(username);
 
    }
 
+   /**
+    * initialise method initialises and sets the postion of all elements of the GUI
+    */
    @SuppressWarnings("unchecked")
    public void initialise() {
 
@@ -256,8 +267,8 @@ public class adminGUI extends JFrame {
 
       aupClearBtn.setText("Clear");
       aupClearBtn.addActionListener(new ActionListener() {
-         public void actionPerformed(ActionEvent evt) {
-            aupClearBtnActionPerformed(evt);
+         public void actionPerformed(ActionEvent e) {
+            aupClearBtnActionPerformed(e);
          }
       });
       addUserPanel.add(aupClearBtn);
@@ -464,6 +475,9 @@ public class adminGUI extends JFrame {
    ///////// Frame Methods
 
    //Populate Staff ComboBox with Staff names
+   /**
+    * Populates the staff combo box with the first name and last name of the staff members from the Database
+    */
    @SuppressWarnings("unchecked")
    public static void populateStaff() {
       conn.setConn(); //Make a connection
@@ -488,69 +502,77 @@ public class adminGUI extends JFrame {
    ///////// Add User PanelMethods 
 
    //Extract the form data from the Add User Panel and create a new User object to be inserted into the database
+   /**
+    * @return User - the user object that was built/pulled from entered information on the GUI
+    * @throws Blanks - When required fields are blank this error message is thrown
+    * @throws SQLException
+    */
    @SuppressWarnings("deprecation")
-public static User pullUser() throws Blanks, SQLException {
-	   try {
-		   
-	   
-      if (aupUsernameField.getText().equals("") || aupPasswordField.getText().equals("")) {
-         throw new Blanks("username AND/OR Password is blank");
-      } else {
-         User user = new User();
-         Staff member = new Staff();
+   public static User pullUser() throws Blanks, SQLException {
+      try {
 
-         user.setUsername(aupUsernameField.getText());
-         user.setPassword(aupPasswordField.getText());
-         //Level is an int on the GUI it is displayed in text, this converts combo selection to the required INT
-         String level = aupLevelCombo.getSelectedItem().toString();
-         if (level.contentEquals("Standard User")) {
-            user.setLevel(1);
+         if (aupUsernameField.getText().equals("") || aupPasswordField.getText().equals("")) {
+            throw new Blanks("username AND/OR Password is blank");
          } else {
-            user.setLevel(0);
-         }
+            User user = new User();
+            Staff member = new Staff();
 
-         String staff = aupStaffCombo.getSelectedItem().toString();
-         String[] staffName = staff.split(" ");
-         member.setFirstName(staffName[0]);
-         member.setLastName(staffName[1]); {
-            try {
-               String sql = "Select StaffID FROM garage.Staff where Staff_Firstname = ? and Staff_LastName = ?";
-               conn.setPstat(conn.getConn().prepareStatement(sql));
-               conn.getPstat().setString(1, staffName[0]);
-               conn.getPstat().setString(2, staffName[1]);
-               conn.setRs(conn.getPstat().executeQuery());
-
-               if (conn.getRs().next()) {
-                  member.setStaff_id(conn.getRs().getInt("StaffID"));
-
-               } else {
-                  member.setStaff_id(1);
-
-               }
-            } catch (SQLException e) {
-               e.printStackTrace();
+            user.setUsername(aupUsernameField.getText());
+            user.setPassword(aupPasswordField.getText());
+            //Level is an int on the GUI it is displayed in text, this converts combo selection to the required INT
+            String level = aupLevelCombo.getSelectedItem().toString();
+            if (level.contentEquals("Standard User")) {
+               user.setLevel(1);
+            } else {
+               user.setLevel(0);
             }
 
-            user.setStaff(member);
+            String staff = aupStaffCombo.getSelectedItem().toString();
+            String[] staffName = staff.split(" ");
+            member.setFirstName(staffName[0]);
+            member.setLastName(staffName[1]); {
+               try {
+                  String sql = "Select StaffID FROM garage.Staff where Staff_Firstname = ? and Staff_LastName = ?";
+                  conn.setPstat(conn.getConn().prepareStatement(sql));
+                  conn.getPstat().setString(1, staffName[0]);
+                  conn.getPstat().setString(2, staffName[1]);
+                  conn.setRs(conn.getPstat().executeQuery());
 
-            return user;
+                  if (conn.getRs().next()) {
+                     member.setStaff_id(conn.getRs().getInt("StaffID"));
+
+                  } else {
+                     member.setStaff_id(1);
+
+                  }
+               } catch (SQLException e) {
+                  e.printStackTrace();
+               }
+
+               user.setStaff(member);
+
+               return user;
+            }
+
          }
+      } catch (Blanks e) {
+         aupUsernameField.setText("ERROR" + errorUser);
+         aupPasswordField.setText("PASSWORD");
+         errorUser++;
 
+         return null;
       }
-   } catch(Blanks e) {
-	   aupUsernameField.setText("ERROR" + errorUser);
-	   aupPasswordField.setText("PASSWORD");
-	   errorUser++;
-	   
-	   return null;
-   }
-	
-	   
-	   
+
    } //END PULL USER METHOD
 
+   /**
+    * Listener for the Save Button (on the Add User Panel) 
+    * @param ActionEvent e
+    * @throws SQLException
+    * @throws Blanks - When required fields are blank this error message is thrown
+    */
    @SuppressWarnings("static-access")
-protected void aupSaveBtnActionPerformed(ActionEvent e) throws  SQLException, Blanks {
+   protected void aupSaveBtnActionPerformed(ActionEvent e) throws SQLException, Blanks {
       User user = new User();
       user = pullUser();
       System.out.println(user.toString());
@@ -568,7 +590,11 @@ protected void aupSaveBtnActionPerformed(ActionEvent e) throws  SQLException, Bl
 
    }
 
-   protected void aupClearBtnActionPerformed(ActionEvent evt) {
+   /**
+    * Action Listener for the clear button resets all fields to blank, default values
+    * @param ActionEvent e
+    */
+   protected void aupClearBtnActionPerformed(ActionEvent e) {
       aupUsernameField.setText("");
       aupPasswordField.setText("");
       aupLevelCombo.setSelectedIndex(0);
@@ -576,6 +602,10 @@ protected void aupSaveBtnActionPerformed(ActionEvent e) throws  SQLException, Bl
 
    }
 
+   /**
+    * Action Listener for the Back Button, closes one panel if another is open and vice versa
+    * @param ActionEvent e
+    */
    protected void aupBackBtnActionPerformed(ActionEvent e) {
 
       if (aupPanelOpen == 0 && euuPanelOpen != 1) {
@@ -591,6 +621,11 @@ protected void aupSaveBtnActionPerformed(ActionEvent e) throws  SQLException, Bl
 
    //Update Table with all users 
 
+   /**
+    * Method that retrieves data from the database and then applies it to the/a table on the GUI.
+    * @param table - table that is displayed on the gui screen
+    * @throws SQLException
+    */
    public void updateTable(JTable table) throws SQLException {
       String sql = "Select username, level , staff_member from Users";
       conn.setConn();
@@ -612,6 +647,11 @@ protected void aupSaveBtnActionPerformed(ActionEvent e) throws  SQLException, Bl
 
    }
 
+   /**
+    * Exportuser method, retrieves information from the selected row on the table on the GUI. 
+    * Then returns the user objec.
+    * @return User - User object built inside the method
+    */
    public User exportUser() {
       User user = new User();
       Staff member = new Staff();

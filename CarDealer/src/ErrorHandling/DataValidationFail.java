@@ -1,5 +1,10 @@
 package ErrorHandling;
 
+/**
+ * @author Andrew Gilbey/C00263656
+ 
+ *
+ */
 public class DataValidationFail extends Exception{
 
 	public DataValidationFail() {
