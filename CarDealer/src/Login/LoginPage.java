@@ -17,6 +17,7 @@ import javax.swing.JTextField;
 import javax.swing.WindowConstants;
 import Administrator.adminGUI;
 import Connection.DbConnection;
+import LandingGUI.LandingPage;
 
 /**
  * @author Andrew Gilbey/C00263656
@@ -119,6 +120,12 @@ public class LoginPage {
                      adminGUI gui = new adminGUI(username);
                      gui.setVisible(true);
                   }
+                  if (level == 1) {
+                      JOptionPane.showMessageDialog(panel, "Log in successful", "Welcome", JOptionPane.INFORMATION_MESSAGE);
+                      LandingPage gui = new LandingPage(username);
+                      gui.setVisible(true);
+                   }
+                 
 
                   frame.dispose(); //close login
 
@@ -150,6 +157,7 @@ public class LoginPage {
       try {
          if (conn.getConn() != null || !conn.getConn().isClosed() == true) {
             connectionLight.setBackground(new Color(0, 255, 0));
+            System.out.println("Connection Established");
             conn.getConn().close();
          }
       } catch (SQLException ignored) {}

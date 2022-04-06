@@ -11,6 +11,7 @@ import java.awt.event.KeyEvent;
 import java.sql.SQLException;
 import javax.swing.BorderFactory;
 import javax.swing.DefaultComboBoxModel;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
@@ -42,6 +43,7 @@ public class AddNewCarGui extends JFrame {
    private JPanel bodyPanel;
    private JPanel carDetailsPanel;
    private JPanel carListPanel;
+   private JLabel imageLogo;
    private JScrollPane carListScrollPane;
    private JTable carListtable;
    private JButton clearBtn;
@@ -79,6 +81,7 @@ public class AddNewCarGui extends JFrame {
    public void initialise() {
       headerPanel = new JPanel();
       titleLabel = new JLabel();
+      imageLogo = new JLabel();
       bodyPanel = new JPanel();
       carDetailsPanel = new JPanel();
       transmissionLabel = new JLabel();
@@ -117,7 +120,14 @@ public class AddNewCarGui extends JFrame {
       headerPanel.setBackground(purple);
       headerPanel.setBorder(BorderFactory.createLineBorder(black));
       headerPanel.setLayout(null);
+      
+      
 
+      imageLogo.setIcon(new ImageIcon(getClass().getResource("/Images/addCar.png"))); // NOI18N
+      headerPanel.add(imageLogo);
+      imageLogo.setBounds(20, 5, 110, 80);
+      
+      
       titleLabel.setFont(interM36);
       titleLabel.setText("Add New Car");
       headerPanel.add(titleLabel);

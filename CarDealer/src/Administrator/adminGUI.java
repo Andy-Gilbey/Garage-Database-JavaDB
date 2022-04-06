@@ -575,7 +575,7 @@ public class adminGUI extends JFrame {
    protected void aupSaveBtnActionPerformed(ActionEvent e) throws SQLException, Blanks {
       User user = new User();
       user = pullUser();
-      System.out.println(user.toString());
+      //System.out.println(user.toString()); //Debug
       InsertUser insert = new InsertUser();
       int flag = insert.validation(user);
       if (flag == 0) {

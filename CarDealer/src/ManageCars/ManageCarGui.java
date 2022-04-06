@@ -8,6 +8,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.sql.SQLException;
 import javax.swing.BorderFactory;
 import javax.swing.DefaultComboBoxModel;
@@ -72,6 +74,7 @@ public class ManageCarGui extends JFrame {
    private JLabel transmissionLabel;
    private JCheckBox enableDeleteBox;
    private JLabel vinLabel;
+   private JLabel imageLogo;
 
    public ManageCarGui() throws HeadlessException, SQLException {
       initalise();
@@ -80,6 +83,7 @@ public class ManageCarGui extends JFrame {
    public void initalise() throws SQLException {
 
       headerPanel = new JPanel();
+      
       titleLabel = new JLabel();
       bodyPanel = new JPanel();
       carListScrollPane = new JScrollPane();
@@ -93,6 +97,7 @@ public class ManageCarGui extends JFrame {
       colourLabel = new JLabel();
       regLabel = new JLabel();
       vinLabel = new JLabel();
+      imageLogo = new JLabel();
       idField = new JTextField();
       idLabel = new JLabel();
       transmissionCombo = new JComboBox < > ();
@@ -134,7 +139,11 @@ public class ManageCarGui extends JFrame {
       titleLabel.setFont(interM36B);
       titleLabel.setText("Manage Cars");
       headerPanel.add(titleLabel);
-      titleLabel.setBounds(150, 30, 340, 30);
+      titleLabel.setBounds(150, 30, 350, 30);
+      
+      imageLogo.setIcon(new ImageIcon(getClass().getResource("/Images/addCar.png"))); // NOI18N
+      headerPanel.add(imageLogo);
+      imageLogo.setBounds(20, 5, 110, 80);
 
       getContentPane().add(headerPanel);
       headerPanel.setBounds(10, 0, 575, 90);
@@ -249,6 +258,12 @@ public class ManageCarGui extends JFrame {
       makeLabel.setBounds(20, 50, 60, 15);
       carDetailsPanel.add(regField);
       regField.setBounds(390, 90, 140, 21);
+      regField.addKeyListener(new KeyAdapter() {
+          public void keyTyped(KeyEvent e) {
+              if (regField.getText().length() >= 45) // limit to 45 characters
+                 e.consume(); //method consumes this event so that it will not be processed 
+           }
+        });
 
       modelLabel.setFont(interM18B);
       modelLabel.setText("Model:");
@@ -269,7 +284,12 @@ public class ManageCarGui extends JFrame {
       vinLabel.setText("VIN:");
       carDetailsPanel.add(vinLabel);
       vinLabel.setBounds(30, 90, 120, 20);
-
+      vinField.addKeyListener(new KeyAdapter() {
+          public void keyTyped(KeyEvent e) {
+             if (vinField.getText().length() >= 17) // limit to 17 characters
+                e.consume(); //method consumes this event so that it will not be processed 
+          }
+       });
       transmissionCombo.setModel(new DefaultComboBoxModel < > (new String[] {
          "Manual",
          "Automatic",
@@ -397,7 +417,14 @@ public class ManageCarGui extends JFrame {
       });
       bodyPanel.add(refreshTableBtn);
       refreshTableBtn.setBounds(20, 280, 20, 20);
-
+      
+      modelField.addKeyListener(new KeyAdapter() {
+          public void keyTyped(KeyEvent e) {
+             if (modelField.getText().length() >= 45) // limit to 45 characters
+                e.consume(); //method consumes this event so that it will not be processed 
+          }
+       });
+      
       getContentPane().add(bodyPanel);
       bodyPanel.setBounds(10, 100, 575, 600);
 

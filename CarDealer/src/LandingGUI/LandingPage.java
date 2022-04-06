@@ -288,6 +288,7 @@ public class LandingPage extends JFrame {
       });
 
       menuManageCars.setText("Manage Cars");
+      menuManageCars.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_M, InputEvent.ALT_DOWN_MASK));
       menuManageCars.addActionListener(new ActionListener() {
          public void actionPerformed(ActionEvent e) {
             try {
